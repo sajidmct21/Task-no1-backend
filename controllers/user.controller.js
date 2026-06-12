@@ -6,7 +6,7 @@ import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 
 export const signIn = asyncHandler(async (req, res, next) => {
-  const { firstname, lastname, username, email, password,role } = req.body;
+  const { firstname, lastname, username, email, password, role } = req.body;
 
   const existingUser = await User.findOne({ username });
   const existingemail = await User.findOne({ email });
@@ -28,7 +28,7 @@ export const signIn = asyncHandler(async (req, res, next) => {
 
   const salt = await bcrypt.genSalt(10);
   const hashPassword = await bcrypt.hash(password, salt);
-  const newUser = new User({ firatname,lastname,role, username, email, password: hashPassword });
+  const newUser = new User({ firstname,lastname,role, username, email, password: hashPassword });
   await newUser.save();
 
   // return res.status(200).json({ message: "Signin successfully" });

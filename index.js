@@ -3,6 +3,8 @@ import env from "dotenv";
 import cors from "cors";
 import dbConnection from "./dbconnection/dbConnection.js";
 import roleRouter from "./routes/user.route.js";
+import userRouter from "./routes/user.route.js";
+
 
 // Add thses lines in index.js
 import dns from 'node:dns';
@@ -15,16 +17,17 @@ app.use(cors());
 
 app.use(express.json());
 
-app.use("/", (req, res) => {
-  res.send("Task One API is Running");
-});
+// app.use("/", (req, res) => {
+//   res.send("Task One API is Running");
+// });
 
 // Routers
 app.use("/role", roleRouter);
+app.use("/api/user", userRouter);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-  res.status(err.statusCode).json({
+  res.status(err.statusCode || 500).json({
     statusCode: err.statusCode,
     name: err.name,
     message: err.message,
