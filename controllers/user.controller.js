@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
+import { Session } from "../models/session.model.js";
 
 export const register = asyncHandler(async (req, res, next) => {
   const { firstname, lastname, username, email, password, role } = req.body;
@@ -28,7 +29,14 @@ export const register = asyncHandler(async (req, res, next) => {
 
   const salt = await bcrypt.genSalt(10);
   const hashPassword = await bcrypt.hash(password, salt);
-  const newUser = new User({ firstname,lastname,role, username, email, password: hashPassword });
+  const newUser = new User({
+    firstname,
+    lastname,
+    role,
+    username,
+    email,
+    password: hashPassword,
+  });
   await newUser.save();
 
   // return res.status(200).json({ message: "Signin successfully" });
@@ -36,30 +44,52 @@ export const register = asyncHandler(async (req, res, next) => {
 });
 
 export const login = asyncHandler(async (req, res, next) => {
-  const { username, email, password } = req.body;
+  const { username, password } = req.body;
   const exsistingUser = await User.findOne({ username });
   if (!exsistingUser) {
-    //   return res
-    //     .status(400)
-    //     .json({ message: "Incorrect username or password" });
     throw new ApiError(400, "Incorrect username or password");
   }
   const isMatched = await bcrypt.compare(password, exsistingUser.password);
   if (!isMatched) {
-    //   return res.status(400).json({ message: "Invalid Password" });
     throw new ApiError(400, "Invalid Password");
   }
+
+  const existingSession = await Session.findOne({ userId: exsistingUser._id });
+  if (existingSession) {
+    await Session.deleteOne({ userId: exsistingUser._id });
+  }
+
+  await Session.create({ userId: exsistingUser._id });
+
   const token = jwt.sign(
-    { username, email, id: exsistingUser._id },
-    process.env.SECRET_KEY,
-    { expiresIn: "1h" }
-  );
-  // return res.status(200).json({ id: exsistingUser._id, token: token });
-  res
-    .status(200)
-    .json({
+    {
+      username,
+      email: exsistingUser.email,
       id: exsistingUser._id,
-      token: token,
-      apiResponse: new ApiResponse(200, "Logged In", token),
-    });
+      role: exsistingUser.role,
+      isLoggedIn: true,
+      firstname: exsistingUser.firstname,
+      lastname: exsistingUser.lastname,
+    },
+    process.env.SECRET_KEY,
+    { expiresIn: "1h" },
+  );
+  exsistingUser.isLoggedIn = true;
+  await exsistingUser.save();
+  res.status(200).json({
+    id: exsistingUser._id,
+    token: token,
+    apiResponse: new ApiResponse(200, "Logged In", token),
+  });
+});
+
+export const logout = asyncHandler(async (req, res) => {
+  try {
+    const { userId } = req;
+    await Session.deleteMany({ userId });
+    await User.findByIdAndUpdate(userId, { isLoggedIn: false });
+    return res.status(200).json(new ApiResponse(200, "You are logout"));
+  } catch (err) {
+    throw new ApiError(400, err.message);
+  }
 });
