@@ -2,7 +2,12 @@ import express from "express";
 import env from "dotenv";
 import cors from "cors";
 import dbConnection from "./dbconnection/dbConnection.js";
-import roleRouter from "./routes/user.router.js";
+import roleRouter from "./routes/user.route.js";
+
+// Add thses lines in index.js
+import dns from 'node:dns';
+dns.setServers(['1.1.1.1', '8.8.8.8']);
+
 
 const app = express();
 env.config();
@@ -11,7 +16,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/", (req, res) => {
-  res.send("Welcome to backend");
+  res.send("Task One API is Running");
 });
 
 // Routers
