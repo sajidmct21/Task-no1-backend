@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 
-export const signIn = asyncHandler(async (req, res, next) => {
+export const register = asyncHandler(async (req, res, next) => {
   const { firstname, lastname, username, email, password, role } = req.body;
 
   const existingUser = await User.findOne({ username });

@@ -37,7 +37,11 @@ const userSchema = new mongoose.Schema(
       type:String,
       required:true,
       trim:true
-    }
+    },
+    isLoggedIn:{
+      type:Boolean,
+      default:false
+    },
   },
   { timestamps: true }
 );
