@@ -79,6 +79,7 @@ export const login = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     id: exsistingUser._id,
     token: token,
+    role:exsistingUser.role,
     apiResponse: new ApiResponse(200, "Logged In", token),
   });
 });
