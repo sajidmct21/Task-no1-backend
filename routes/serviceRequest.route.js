@@ -13,10 +13,7 @@ import { isAuthenticated } from "../middleware/isAuthenticated.js";
 const router = express.Router();
 
 
-// =========================
 // CUSTOMER ROUTES
-// =========================
-
 // Create a service request
 router.post("/", isAuthenticated, createServiceRequest);
 
@@ -24,18 +21,13 @@ router.post("/", isAuthenticated, createServiceRequest);
 router.get("/my", isAuthenticated, getMyRequests);
 
 
-// =========================
 // PROVIDER ROUTES
-// =========================
-
 // Get provider's incoming requests
 router.get("/provider", isAuthenticated, getProviderRequests);
 
 
-// =========================
-// COMMON ROUTES
-// =========================
 
+// COMMON ROUTES
 // Get single request details
 router.get("/:id", isAuthenticated, getRequestDetails);
 

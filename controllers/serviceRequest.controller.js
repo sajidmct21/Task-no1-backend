@@ -5,9 +5,9 @@ import { ApiResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 
-// =========================
+
 // 1. CREATE SERVICE REQUEST
-// =========================
+
 export const createServiceRequest = asyncHandler(async (req, res) => {
   const customerId = req.user._id;
 
@@ -39,9 +39,9 @@ export const createServiceRequest = asyncHandler(async (req, res) => {
 });
 
 
-// =========================
+
 // 2. GET CUSTOMER REQUESTS
-// =========================
+
 export const getMyRequests = asyncHandler(async (req, res) => {
   const customerId = req.user._id;
 
@@ -55,9 +55,8 @@ export const getMyRequests = asyncHandler(async (req, res) => {
 });
 
 
-// =========================
 // 3. GET PROVIDER REQUESTS
-// =========================
+
 export const getProviderRequests = asyncHandler(async (req, res) => {
   const providerId = req.user._id;
 
@@ -71,9 +70,9 @@ export const getProviderRequests = asyncHandler(async (req, res) => {
 });
 
 
-// =========================
+
 // 4. GET SINGLE REQUEST DETAILS
-// =========================
+
 export const getRequestDetails = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
@@ -92,9 +91,9 @@ export const getRequestDetails = asyncHandler(async (req, res) => {
 });
 
 
-// =========================
+
 // 5. UPDATE REQUEST STATUS
-// =========================
+
 export const updateRequestStatus = asyncHandler(async (req, res) => {
   const providerId = req.user._id;
   const { id } = req.params;
