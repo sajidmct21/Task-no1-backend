@@ -4,6 +4,10 @@ import cors from "cors";
 import dbConnection from "./dbconnection/dbConnection.js";
 import roleRouter from "./routes/user.route.js";
 import userRouter from "./routes/user.route.js";
+import providerProfileRouter from "./routes/providerProfile.route.js";
+import serviceRouter from "./routes/service.route.js";
+import serviceRequestRouter from './routes/serviceRequest.route.js'
+
 
 
 // Add thses lines in index.js
@@ -24,6 +28,9 @@ app.use(express.json());
 // Routers
 app.use("/role", roleRouter);
 app.use("/api/user", userRouter);
+app.use("/api/providerProfile", providerProfileRouter);
+app.use("/api/service", serviceRouter);
+app.use("/api/service-requests", serviceRequestRouter);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
