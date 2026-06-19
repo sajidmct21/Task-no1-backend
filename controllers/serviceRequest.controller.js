@@ -5,16 +5,13 @@ import { ApiResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 
-// 1. Submit Service Request
+// =========================
+// 1. CREATE SERVICE REQUEST
+// =========================
 export const createServiceRequest = asyncHandler(async (req, res) => {
   const customerId = req.user._id;
 
-  const {
-    service: serviceId,
-    requirements,
-    budget,
-    deadline,
-  } = req.body;
+  const { service: serviceId, requirements, budget, deadline } = req.body;
 
   if (!serviceId || !requirements || !budget || !deadline) {
     throw new ApiError(400, "All fields are required");
@@ -33,54 +30,77 @@ export const createServiceRequest = asyncHandler(async (req, res) => {
     requirements,
     budget,
     deadline,
+    status: "Pending",
   });
 
-  return res.status(201).json(
-    new ApiResponse(
-      201,
-      "Service request submitted successfully",
-      request
-    )
-  );
+  return res
+    .status(201)
+    .json(new ApiResponse(201, "Service request created", request));
 });
 
-// 2. Get My Requests (Customer)
+
+// =========================
+// 2. GET CUSTOMER REQUESTS
+// =========================
 export const getMyRequests = asyncHandler(async (req, res) => {
   const customerId = req.user._id;
 
-  const requests = await ServiceRequest.find({
-    customer: customerId,
-  })
-    .populate("service", "title category price")
+  const requests = await ServiceRequest.find({ customer: customerId })
+    .populate("service", "title category price deliveryTime")
     .populate("provider", "firstname lastname email");
 
-  return res.status(200).json(
-    new ApiResponse(200, "Requests fetched successfully", requests)
-  );
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Customer requests fetched", requests));
 });
 
-// 3. Get Provider Requests
+
+// =========================
+// 3. GET PROVIDER REQUESTS
+// =========================
 export const getProviderRequests = asyncHandler(async (req, res) => {
   const providerId = req.user._id;
 
-  const requests = await ServiceRequest.find({
-    provider: providerId,
-  })
-    .populate("customer", "firstname lastname email")
-    .populate("service", "title category");
+  const requests = await ServiceRequest.find({ provider: providerId })
+    .populate("service", "title category price")
+    .populate("customer", "firstname lastname email");
 
-  return res.status(200).json(
-    new ApiResponse(200, "Provider requests fetched", requests)
-  );
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Provider requests fetched", requests));
 });
 
-// 4. Update Request Status
+
+// =========================
+// 4. GET SINGLE REQUEST DETAILS
+// =========================
+export const getRequestDetails = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const request = await ServiceRequest.findById(id)
+    .populate("service")
+    .populate("customer", "firstname lastname email")
+    .populate("provider", "firstname lastname email");
+
+  if (!request) {
+    throw new ApiError(404, "Request not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Request details fetched", request));
+});
+
+
+// =========================
+// 5. UPDATE REQUEST STATUS
+// =========================
 export const updateRequestStatus = asyncHandler(async (req, res) => {
   const providerId = req.user._id;
-  const { requestId } = req.params;
+  const { id } = req.params;
   const { status } = req.body;
 
-  const request = await ServiceRequest.findById(requestId);
+  const request = await ServiceRequest.findById(id);
 
   if (!request) {
     throw new ApiError(404, "Request not found");
@@ -92,10 +112,22 @@ export const updateRequestStatus = asyncHandler(async (req, res) => {
 
   request.status = status;
 
+  // Auto timestamps
+  if (status === "Accepted") {
+    request.acceptedAt = new Date();
+  }
+
+  if (status === "Completed") {
+    request.completedAt = new Date();
+  }
+
+  if (status === "Delivered") {
+    request.deliveredAt = new Date();
+  }
+
   await request.save();
 
-  return res.status(200).json(
-    new ApiResponse(200, "Status updated successfully", request)
-  );
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Status updated successfully", request));
 });
-
